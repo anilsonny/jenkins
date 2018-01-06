@@ -1,0 +1,326 @@
+function notifyBar(t) {
+    var e = window.location.href; - 1 != e.search("/checkout/cart") ? (jQuery.noConflict(), jQuery(".notification").show("fast"), jQuery(".notification").html("<div id='note'><div class='alignMiddle'>" + t + "<span id='note-close'>X</span></div></div>"), setTimeout(function() {
+        jQuery(".notification").hide("slow")
+    }, 6e3), jQuery("#note-close").click(function() {
+        jQuery(".notification").hide("slow")
+    })) : jQuery(".cart-items-box1").toggleClass("addtocartdefault")
+}
+jQuery("body,html").click(function() {
+    jQuery(".cart-items-box1").removeClass("addtocartdefault"), jQuery(".cart-items-box1").hide()
+});
+var ajaxcart = {
+        g: new Growler,
+        initialize: function() {
+            this.g = new Growler, this.bindEvents()
+        },
+        bindEvents: function() {
+            this.addSubmitEvent(), $$('a[href*="/checkout/cart/delete/"]').each(function(t) {
+                $(t).observe("click", function(e) {
+                    setLocation($(t).readAttribute("href")), Event.stop(e)
+                })
+            })
+        },
+        ajaxCartSubmit: function(t, e, n) {
+            var o, a = this,
+                i = n;
+            "undefined" !== Modalbox && Modalbox.initialized && Modalbox.hide();
+            try {
+                if ("string" == typeof t) {
+                    var r = t,
+                        c = r.split("="),
+                        s = "",
+                        u = "",
+                        d = "";
+                    if (c && c[1]) {
+                        var l = c[1].split(",");
+                        s = l[0], u = l[1], d = "options[" + s + "]=" + u
+                    }
+                    "" != i ? o = "quantity/" + i : "undefined" == typeof i && (o = ""), AjaxQueue.push(r + o, {
+                        parameters: d,
+                        onLoading: function(t) {
+                            $("load_animate").show()
+                        },
+                        onLoaded: function(t) {
+                            $("#note").hide(), a.showError("")
+                        },
+                        onSuccess: function(t) {
+                            try {
+                                var n = t.responseText.evalJSON();
+                               //console.log(n);
+                                if (fbq("track", "AddToCart", {
+                                        content_name: n.product_name,
+                                        content_ids: n.cartsku,
+                                        content_type: "product",
+                                        value: n.carttotal,
+                                        currency: "INR"
+                                    }), n) {
+                                    "undefined" != typeof n.carttotal && (0 != n.carttotal ? (document.getElementById("mini-cart-total-raju").innerHTML = "Cart (" + parseInt(n.cartcount) + ")", $("minicartfooterid").show(), $("sub_total").show()) : (document.getElementById("mini-cart-total").innerHTML = "0", $("minicartfooterid").hide())), "undefined" != typeof n.cartcount && (0 == parseInt(n.cartcount) ? document.getElementById("header-text").innerHTML = "No item in cart to display" : (document.getElementById("header-text").innerHTML = "<span class='strong_robot'> Your Cart </span> <span class='minicart_icon'>(" + parseInt(n.cartcount) + " items)</span><span class='minicart-close'></span>", document.getElementById("mini_cart_ordertotal_div").innerHTML = "<span class='price'>₹" + Math.round(n.carttotal) + "</span>")), "undefined" != typeof n.cartitem && (document.getElementById("mini-cart-summary").innerHTML = n.cartitem);
+                                    var o = window.location.href;
+                                    if ((-1 != o.search("/checkout/cart") || -1 != o.search("/checkout/onepage")) && document.location.reload(!0), -1 != o.search("/checkout/")) {
+                                        if ("undefined" != typeof n.cartsubtotal) {
+                                            var i = document.getElementById("sub-total"),
+                                                r = document.getElementById("grand-total");
+                                            null != i && null != r && (0 != n.carttotal ? (document.getElementById("sub-total").innerHTML = "$" + parseInt(n.cartsubtotal).toFixed(2), document.getElementById("grand-total").innerHTML = "$" + parseInt(n.carttotal).toFixed(2)) : (document.getElementById("sub-total").innerHTML = "$0.00", document.getElementById("grand-total").innerHTML = "$0.00"))
+                                        }
+                                        if ("undefined" != typeof n.shippingtaxamount && 0 != n.shippingtaxamount) {
+                                            var c = document.getElementById("shippingtax");
+                                            null != c && (0 == parseInt(n.shippingtaxamount) ? document.getElementById("shippingtax").innerHTML = "$" + parseFloat(n.shippingtaxamount) : document.getElementById("shippingtax").innerHTML = "$" + parseFloat(n.shippingtaxamount))
+                                        }
+                                        if ("undefined" != typeof n.discount) {
+                                            var s = document.getElementById("discountamount");
+                                            null != s && (0 == parseInt(n.discount) ? document.getElementById("discountamount").innerHTML = n.discount : document.getElementById("discountamount").innerHTML = n.discount)
+                                        }
+                                    }
+                                    if (-1 != o.search("checkout/onepage") && "undefined" != typeof n.cartcount) {
+                                        var u = document.getElementById("checout-count");
+                                        null != u && (0 == parseInt(n.cartcount) ? document.getElementById("checout-count").innerHTML = parseInt(n.cartcount) : document.getElementById("checout-count").innerHTML = parseInt(n.cartcount))
+                                    }
+                                    n.configurable_options_block ? "success" == n.r ? a.showPopup(n.configurable_options_block) : "undefined" != typeof n.messages && a.showError(n.messages) : "success" == n.r ? (n.message ? a.showSuccess(n.message) : a.showSuccess("Item was added into cart."), a.updateBlocks(n.update_blocks)) : "undefined" != typeof n.messages && (setTimeout(function() {
+                                        if (e) {
+                                            var t, n = document.getElementById("cart_qty_" + parseInt(e)).value - 1;
+                                            0 == n ? (document.getElementById("cart_qty_" + parseInt(e)).value = 1, t = document.getElementById("cart-itemqty-" + parseInt(e)), t && (document.getElementById("cart-itemqty-" + parseInt(e)).value = 1)) : n > 0 && (document.getElementById("cart_qty_" + parseInt(e)).value = n, t = document.getElementById("cart-itemqty-" + parseInt(e)), t && (t.value = n))
+                                        }
+                                    }, 3e3), a.showError(n.messages))
+                                } else document.location.reload(!0)
+                            } catch (d) {}
+                            $("load_animate").hide()
+                        },
+                        onComplete: function() {
+                            $("load_animate").hide()
+                        }
+                    })
+                } else {
+                    if ("undefined" != typeof t.form.down("input[type=file]")) {
+                        t.form.insert('<iframe id="upload_target" name="upload_target" src="" style="width:0;height:0;border:0px solid #fff;"></iframe>');
+                        var m = $("upload_target");
+                        return m.observe("load", function() {
+                            try {
+                                var t = m.contentDocument ? m.contentDocument : m.contentWindow.document || m.document;
+                                console.log(t);
+                                var e = t.body.innerText ? t.body.innerText : t.body.textContent;
+                                e = e.evalJSON(), e && ("success" == e.r ? (e.message ? a.showSuccess(e.message) : a.showSuccess("Item was added into cart."), a.updateBlocks(e.update_blocks)) : "undefined" != typeof e.messages && a.showError(e.messages))
+                            } catch (n) {
+                                console.log(n)
+                            }
+                        }), t.form.target = "upload_target", a.g.warn("Processing", {
+                            life: 3
+                        }), t.form.submit(), !0
+                    }
+                    var r = t.form.action,
+                        p = t.form.serialize();
+                    new Ajax.Request(r, {
+                        method: "post",
+                        dataType: "json",
+                        postBody: p,
+                        onCreate: function() {},
+                        onLoading: function(t) {
+                            $("load_animate").show()
+                        },
+                        onSuccess: function(t) {
+                            try {
+                                var e = t.responseText.evalJSON();
+                                if (fbq("track", "AddToCart", {
+                                       content_name: e.product_name,
+                                        content_ids: e.cartsku,
+                                        content_type: "product",
+                                        value: e.carttotal,
+                                        currency: "INR"
+                                    }), e) {
+                                    "undefined" != typeof e.carttotal && (0 != e.carttotal ? (document.getElementById("mini-cart-total-raju").innerHTML = "Cart (" + parseInt(e.cartcount) + ")", $("minicartfooterid").show(), $("sub_total").show()) : (document.getElementById("mini-cart-total").innerHTML = "0", $("minicartfooterid").hide())), "undefined" != typeof e.cartitem && (document.getElementById("mini-cart-summary").innerHTML = e.cartitem), "undefined" != typeof e.cartcount && (0 == parseInt(e.cartcount) ? document.getElementById("header-text").innerHTML = "No item in cart to display" : (document.getElementById("header-text").innerHTML = "<span class='strong_robot'> Your Cart </span> <span class='minicart_icon'>(" + parseInt(e.cartcount) + " items)</span> <span class='minicart-close'></span>", document.getElementById("mini_cart_ordertotal_div").innerHTML = "<span class='price'>₹" + Math.round(e.carttotal) + "</span>"));
+                                    var n = window.location.href;
+                                    if (n.indexOf("checkout/cart/configure/id") >= 0) return window.location = e.customurl + "checkout/cart/", !1;
+                                    if (-1 != n.search("/checkout/")) {
+                                        if ("undefined" != typeof e.cartsubtotal) {
+                                            var o = document.getElementById("sub-total"),
+                                                i = document.getElementById("grand-total");
+                                            null != o && null != i && (0 != e.carttotal ? (document.getElementById("sub-total").innerHTML = "$" + parseFloat(e.cartsubtotal).toFixed(2), document.getElementById("grand-total").innerHTML = "$" + parseFloat(e.carttotal).toFixed(2)) : (document.getElementById("sub-total").innerHTML = "$0.00", document.getElementById("grand-total").innerHTML = "$0.00"))
+                                        }
+                                        if ("undefined" != typeof e.shippingtaxamount && 0 != e.shippingtaxamount) {
+                                            var r = document.getElementById("shippingtax");
+                                            null != r && (0 == parseInt(e.shippingtaxamount) ? document.getElementById("shippingtax").innerHTML = "$" + parseFloat(e.shippingtaxamount) : document.getElementById("shippingtax").innerHTML = "$" + parseFloat(e.shippingtaxamount))
+                                        }
+                                    }
+                                    if ("undefined" != typeof e.discount) {
+                                        var c = document.getElementById("discountamount");
+                                        null != c && (0 == parseInt(e.discount) ? document.getElementById("discountamount").innerHTML = e.discount : document.getElementById("discountamount").innerHTML = e.discount)
+                                    }
+                                    "success" == e.r ? (e.message ? a.showSuccess(e.message) : a.showSuccess("Item was added into cart."), a.updateBlocks(e.update_blocks)) : "undefined" != typeof e.messages && a.showError(e.messages)
+                                }
+                            } catch (s) {
+                                console.log(s)
+                            }
+                            $("load_animate").hide()
+                        },
+                        onComplete: function() {
+                            $("load_animate").hide()
+                        }
+                    })
+                }
+            } catch (h) {
+                console.log(h), "string" == typeof t ? window.location.href = t : document.location.reload(!0)
+            }
+        },
+        getConfigurableOptions: function(t) {
+            var e = this;
+            new Ajax.Request(t, {
+                onCreate: function() {},
+                onSuccess: function(n) {
+                    try {
+                        var o = n.responseText.evalJSON();
+                        o ? "success" == o.r ? e.showPopup(o.configurable_options_block) : "undefined" != typeof o.messages ? e.showError(o.messages) : e.showError("Something bad happened") : document.location.reload(!0)
+                    } catch (a) {
+                        window.location.href = t
+                    }
+                }
+            })
+        },
+        showSuccess: function(t) {
+            notifyBar(t)
+            document.getElementById("qty_error_message").innerHTML = '';
+        },
+        showError: function(t) {
+        	var element;
+           element = document.getElementById("qty_error_message");
+        if (element) {
+        
+        	element.display = 'block';
+        	
+        	str = '<ul class="messages"><li class="error-msg"><ul><li><span>'+t+'</span></li><span id="noteClose" onclick="javascript: document.getElementById(\'qty_error_message\').innerHTML = \'\';">X</span></ul></li></ul>';
+        element.innerHTML = str;
+          }
+        	
+            var o = n.responseText.evalJSON();
+                        o ? "error" == o.r ? e.showPopup(o.configurable_options_block) : "undefined" != typeof o.messages ? e.showError(o.messages) : e.showError("Something bad happened") : document.location.reload(!0)
+         
+            notifyBar("string" == typeof t ? t : t)
+            
+            
+        },
+        addSubmitEvent: function() {
+            if ("undefined" != typeof productAddToCartForm) {
+                var t = this;
+                productAddToCartForm.submit = function(e) {
+                    return this.validator && this.validator.validate() && t.ajaxCartSubmit(this), !1
+                }, productAddToCartForm.form.onsubmit = function() {
+                    return productAddToCartForm.submit(), !1
+                }
+            }
+        },
+        updateBlocks: function(t) {
+            var e = this;
+            if (t) try {
+                t.each(function(t) {
+                    if (t.key) {
+                        var e = t.key;
+                        $$(e) && $$(e).each(function(e) {
+                            $(e).replace(t.value)
+                        })
+                    }
+                }), e.bindEvents(), truncateOptions()
+            } catch (n) {
+                console.log(n)
+            }
+        },
+        showPopup: function(t) {
+            try {
+                var e = this,
+                    n = new Element("div", {
+                        id: "modalboxOptions"
+                    }).update(t),
+                    o = document.viewport.getDimensions();
+                Modalbox.show(n, {
+                    title: "Please Select Options",
+                    width: 510,
+                    height: o.height,
+                    afterLoad: function() {
+                        e.extractScripts(t), e.bindEvents()
+                    }
+                })
+            } catch (a) {
+                console.log(a)
+            }
+        },
+        extractScripts: function(strings) {
+            var scripts = strings.extractScripts();
+            scripts.each(function(script) {
+                try {
+                    eval(script.replace(/var /gi, ""))
+                } catch (e) {
+                    console.log(e)
+                }
+            })
+        }
+    },
+    AjaxQueue = {
+        batchSize: 1,
+        urlQueue: [],
+        elementsQueue: [],
+        optionsQueue: [],
+        setBatchSize: function(t) {
+            this.batchSize = t
+        },
+        push: function(t, e, n) {
+            this.urlQueue.push(t), this.optionsQueue.push(e), null != n ? this.elementsQueue.push(n) : this.elementsQueue.push("NOTSPECIFIED"), this._processNext()
+        },
+        _processNext: function() {
+            Ajax.activeRequestCount < AjaxQueue.batchSize && ("NOTSPECIFIED" == AjaxQueue.elementsQueue.first() ? (new Ajax.Request(AjaxQueue.urlQueue.shift(), AjaxQueue.optionsQueue.shift()), AjaxQueue.elementsQueue.shift()) : new Ajax.Updater(AjaxQueue.elementsQueue.shift(), AjaxQueue.urlQueue.shift(), AjaxQueue.optionsQueue.shift()))
+        }
+    };
+Ajax.Responders.register({
+    onComplete: AjaxQueue._processNext
+});
+var oldSetLocation = setLocation,
+    setLocation = function() {
+        return function(t, e, n) {
+            if ("https:" == window.location.protocol && (t = t.replace("http://", "https://")), -1 != t.search("checkout/cart/add") ? ajaxcart.ajaxCartSubmit(t, e, n) : -1 != t.search("checkout/cart/delete") ? ajaxcart.ajaxCartSubmit(t) : -1 != t.search("options=cart") ? (t += "&ajax=true", ajaxcart.getConfigurableOptions(t)) : oldSetLocation(t), e) {
+                var o, a = parseInt(document.getElementById("cart_qty_" + parseInt(e)).value);
+                0 == a ? (document.getElementById("cart_qty_" + parseInt(e)).value = 1, o = document.getElementById("cart-itemqty-" + parseInt(e)), o && (document.getElementById("cart-itemqty-" + parseInt(e)).value = 1)) : a > 0 && (document.getElementById("cart_qty_" + parseInt(e)).value = a, o = document.getElementById("cart-itemqty-" + parseInt(e)), o && setTimeout(function() {
+                    document.getElementById("cart-itemqty-" + parseInt(e)).value = a
+                }, 1e3))
+            }
+        }
+    }(),
+    setDeleteqty = function() {
+        return function(t, e) {
+            "https:" == window.location.protocol && (e = e.replace("http://", "https://"));
+            var n = document.getElementById("cart_qty_" + parseInt(t));
+            if (null != n) var o = parseInt(n.value) - 1;
+            else var o = parseInt(document.getElementById("cart-itemqty-" + parseInt(t)).value) - 1;
+            o >= 1 && (e = e + "qty/" + parseInt(o) + "/", ajaxcart.ajaxCartSubmit(e));
+            var a;
+            0 == o ? (document.getElementById("cart_qty_" + parseInt(t)).value = 1, a = document.getElementById("cart-itemqty-" + parseInt(t)), a && (document.getElementById("cart-itemqty-" + parseInt(t)).value = 1)) : o > 0 && (document.getElementById("cart_qty_" + parseInt(t)).value = o, a = document.getElementById("cart-itemqty-" + parseInt(t)), a && setTimeout(function() {
+                document.getElementById("cart-itemqty-" + parseInt(t)).value = o
+            }, 1e3))
+        }
+    }(),
+    setDeleteitem = function() {
+        return function(t, e) {
+            "https:" == window.location.protocol && (e = e.replace("http://", "https://")), parseInt(document.getElementById("cart_qty_" + parseInt(t)).value) - 1, e += "qty/0/", ajaxcart.ajaxCartSubmit(e);
+            var n = document.getElementById("li-" + t);
+            n && n.remove();
+            var o = document.getElementById("item-" + t);
+            o && o.remove()
+        }
+    }();
+setPLocation = setLocation, document.observe("dom:loaded", function() {
+    ajaxcart.initialize()
+}), jQuery.noConflict(), jQuery(function(t) {
+    jQuery(".header-cart .relative").hoverIntent({
+        over: function() {
+            jQuery(".price, .old-price, .special-price, .save-price").each(function() {
+                jQuery(this).html(jQuery(this).text().replace(/₹/g, "<span class='rupee-symbol'>₹ </span>"))
+            }), jQuery(this).children(".cart-items-box").slideDown(300), jQuery(".cart-items-box").show()
+        },
+        out: function() {
+            jQuery(this).children(".cart-items-box").slideUp(300), jQuery(".cart-items-box").hide()
+        }
+    }), t(".cart-item-box td.last a").click(function() {
+        t(this).closest("tr").hide("slow");
+        var e = "li-" + t(this).attr("id");
+        e && t("#" + e).hide("slow")
+    }), t("li a.remove-btn").click(function() {
+        t(this).closest("li").hide("slow");
+        var e = "item-" + t(this).attr("id");
+        e && t("#" + e).hide("slow")
+    })
+});
